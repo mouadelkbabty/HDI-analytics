@@ -46,5 +46,123 @@ Ce rapport documente l'analyse approfondie des données de l'Indice de Développ
 ```{r}
 file_path <- "HDI.csv"
 data <- read.csv(file_path)
+
+# Suppression des lignes avec des valeurs nulles ou vides dans la colonne 'region'
+data <- data[!is.na(data$region) & data$region != "", ]
+
+# Remplacement des abréviations des régions par leurs noms complets
+data$region <- gsub("EAP", "East Asia and Pacific", data$region)
+data$region <- gsub("ECA", "Europe and Central Asia", data$region)
+data$region <- gsub("LAC", "Latin America and the Caribbean", data$region)
+data$region <- gsub("MNA.", "Middle East and North Africa", data$region)
+data$region <- gsub("SAR", "South Asia", data$region)
+data$region <- gsub("SSA", "Sub-Saharan Africa", data$region)
+data$region <- gsub("SA", "South Asia", data$region)
+data$region <- gsub("AS", "Asia", data$region)
+
+# Vérification des modifications
 head(data)
+qual_vars <- c("region", "hdicode")
+quant_vars <- c("gnipc_1990", "le_1990")
+
+# Description des variables qualitatives
+for (var in qual_vars) {
+  cat("Résumé de la variable qualitative", var, ":\n")
+  print(summary(as.factor(data[[var]])))
+  cat("Données manquantes :", sum(is.na(data[[var]])), "\n\n")
+}
+
+# Description des variables quantitatives
+for (var in quant_vars) {
+  cat("Résumé de la variable quantitative", var, ":\n")
+  print(summary(data[[var]]))
+  cat("Données manquantes :", sum(is.na(data[[var]])), "\n\n")
+}
+
+# Sélection des variables d'intérêt
+qual_vars <- c("region", "hdicode")
+quant_vars <- c("gnipc_1990", "le_1990")
+
+# Graphiques pour les variables qualitatives
+library(ggplot2)
+
+# Vecteurs de noms correspondants
+var_labels <- list(
+  region = "Geographic Region",
+  hdicode = "HDI Category",
+  gnipc_1990 = "GNI per Capita (1990)",
+  le_1990 = "Life Expectancy (1990)"
+)
+
+# Thème personnalisé pour les graphiques
+theme_custom <- theme_minimal(base_size = 15) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_text(size = 16),
+    axis.title.y = element_text(size = 16),
+    panel.grid.major = element_line(color = "grey80"),
+    panel.grid.minor = element_blank(),
+    plot.background = element_rect(fill = "white", color = "grey85")
+  )
+
+# Analyse univariée pour les variables qualitatives
+for (var in qual_vars) {
+  p <- ggplot(data, aes_string(var)) + 
+        geom_bar(fill = "#0073C2FF", color = "black") + 
+        ggtitle(paste("Distribution of", var_labels[[var]])) +
+        xlab(var_labels[[var]]) +
+        ylab("Count") +
+        theme_custom
+  print(p)
+  
+  cat("Résumé de la variable qualitative", var, ":\n")
+  print(summary(as.factor(data[[var]])))
+  cat("Données manquantes :", sum(is.na(data[[var]])), "\n\n")
+}
+
+# Analyse univariée pour les variables quantitatives
+for (var in quant_vars) {
+  p <- ggplot(data, aes_string(var)) + 
+        geom_histogram(bins = 30, fill = "#0073C2FF", color = "black") + 
+        ggtitle(paste("Distribution of", var_labels[[var]])) +
+        xlab(var_labels[[var]]) +
+        ylab("Frequency") +
+        theme_custom
+  print(p)
+  
+  cat("Résumé de la variable quantitative", var, ":\n")
+  print(summary(data[[var]]))
+  cat("Données manquantes :", sum(is.na(data[[var]])), "\n\n")
+  
+  # Test de normalité
+  shapiro_test <- shapiro.test(data[[var]])
+  cat("Test de normalité de Shapiro-Wilk pour", var, ":\n")
+  print(shapiro_test)
+  
+  # Estimateurs de moyenne et variance
+  mean_var <- mean(data[[var]], na.rm = TRUE)
+  var_var <- var(data[[var]], na.rm = TRUE)
+  cat("Moyenne de", var, ":", mean_var, "\n")
+  cat("Variance de", var, ":", var_var, "\n")
+  
+  # Intervalle de confiance pour la moyenne
+  n <- sum(!is.na(data[[var]]))
+  error <- qnorm(0.975) * sqrt(var_var/n)
+  ci <- c(mean_var - error, mean_var + error)
+  cat("Intervalle de confiance de la moyenne de", var, ":", ci, "\n\n")
+}
+
+# Calcul d'un intervalle de confiance d'une proportion pertinente (par exemple, proportion de pays avec un HDI élevé)
+high_hdi_prop <- sum(data$hdicode == "High" | data$hdicode == "Very High", na.rm = TRUE) / nrow(data)
+cat("Proportion de pays avec un HDI élevé :", high_hdi_prop, "\n")
+
+# Intervalle de confiance pour la proportion
+z <- qnorm(0.975)
+ci_prop <- c(
+  high_hdi_prop - z * sqrt((high_hdi_prop * (1 - high_hdi_prop)) / nrow(data)),
+  high_hdi_prop + z * sqrt((high_hdi_prop * (1 - high_hdi_prop)) / nrow(data))
+)
+cat("Intervalle de confiance pour la proportion de pays avec un HDI élevé :", ci_prop, "\n")
+
 ```
