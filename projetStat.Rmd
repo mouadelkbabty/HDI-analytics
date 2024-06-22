@@ -87,7 +87,7 @@ Ce rapport documente l'analyse approfondie des données de l'Indice de Développ
      Description : Cette question explore comment l'espérance de vie en 1990 varie en fonction de la catégorie de                   développement humain d'un pays.
      Analyse : Utiliser des boxplots ou des diagrammes en barres pour comparer l'espérance de vie moyenne entre les                 différentes catégories d'IDH.
 
-2. Existe-t-il une corrélation entre le Revenu National Brut par habitant (gnipc_1990) et l'IDH (hdi_2021)?
+4. Existe-t-il une corrélation entre le Revenu National Brut par habitant (gnipc_1990) et l'IDH (hdi_2021)?
     Description : Cette question examine la relation entre le revenu d'un pays en 1990 et son développement humain en 2021.
     Analyse : Utiliser des outils statistiques pour analyser la corrélation entre gnipc_1990 et hdi_2021.
     Variables Utilisées : gnipc_1990, hdi_2021.
@@ -309,7 +309,6 @@ prop_ci <- prop.test(sum(hdi_data$region == "Sub-Saharan Africa"), nrow(hdi_data
 print(prop_ci)
 
 
-
 # Boxplot pour l'espérance de vie en 1990 par catégorie d'IDH
 ggplot(hdi_data, aes(x = hdicode, y = le_1990, fill = hdicode)) +
   geom_boxplot() +
@@ -373,6 +372,224 @@ ggplot(hdi_data, aes(sample = le_1990)) +
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 12, face = "bold")
   )
+
+# Test de Shapiro-Wilk pour chaque catégorie d'IDH
+shapiro_tests <- hdi_data %>%
+  group_by(hdicode) %>%
+  summarize(p_value = shapiro.test(le_1990)$p.value)
+
+print(shapiro_tests)
+
+# 2. Estimateurs de moyenne et de variance
+
+# Moyenne et variance pour chaque catégorie d'IDH
+summary_stats <- hdi_data %>%
+  group_by(hdicode) %>%
+  summarize(
+    mean_le_1990 = mean(le_1990, na.rm = TRUE),
+    var_le_1990 = var(le_1990, na.rm = TRUE),
+    sd_le_1990 = sd(le_1990, na.rm = TRUE)
+  )
+
+print(summary_stats)
+
+# 3. Intervalles de confiance des moyennes
+
+# Calcul des intervalles de confiance pour la moyenne de l'espérance de vie en 1990 par catégorie d'IDH
+ci_stats <- hdi_data %>%
+  group_by(hdicode) %>%
+  summarize(
+    mean_le_1990 = mean(le_1990, na.rm = TRUE),
+    sd_le_1990 = sd(le_1990, na.rm = TRUE),
+    n = n()
+  ) %>%
+  mutate(
+    error_margin = qt(1 - 0.05/2, df = n - 1) * sd_le_1990 / sqrt(n),
+    ci_lower = mean_le_1990 - error_margin,
+    ci_upper = mean_le_1990 + error_margin
+  )
+
+print(ci_stats)
+
+# 4. Calcul d’intervalle de confiance d’une proportion pertinente
+
+# Proportion des pays en Sub-Saharan Africa dans chaque catégorie d'IDH
+prop_ssa <- hdi_data %>%
+  filter(region == "Sub-Saharan Africa") %>%
+  group_by(hdicode) %>%
+  summarize(proportion = n() / sum(hdi_data$hdicode == hdicode))
+
+# Calcul des intervalles de confiance pour la proportion
+prop_ci <- hdi_data %>%
+  filter(region == "Sub-Saharan Africa") %>%
+  group_by(hdicode) %>%
+  summarize(
+    n = n(),
+    N = sum(hdi_data$hdicode == hdicode)
+  ) %>%
+  mutate(
+    proportion = n / N,
+    error_margin = qt(1 - 0.05/2, df = N - 1) * sqrt((proportion * (1 - proportion)) / N),
+    ci_lower = proportion - error_margin,
+    ci_upper = proportion + error_margin
+  )
+
+print(prop_ci)
+
+# 1. Diagramme de dispersion pour visualiser la relation entre hdi_growth_2000_2021 et le_2021
+ggplot(hdi_data, aes(x = hdi_growth_2000_2021, y = le_2021)) +
+  geom_point(color = "#69b3a2", alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed") +
+  labs(title = "Relation entre la croissance de l'IDH (2000-2021) et l'espérance de vie en 2021", 
+       x = "Croissance de l'IDH (2000-2021)", 
+       y = "Espérance de vie en 2021 (années)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 11),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+
+# 2. Calculer le coefficient de corrélation de Pearson
+correlation <- cor(hdi_data$hdi_growth_2000_2021, hdi_data$le_2021, use = "complete.obs")
+cat("Le coefficient de corrélation de Pearson entre hdi_growth_2000_2021 et le_2021 est :", correlation, "\n")
+
+# 3. Test de significativité de la corrélation
+cor_test <- cor.test(hdi_data$hdi_growth_2000_2021, hdi_data$le_2021)
+print(cor_test)
+
+
+
+
+
+
+#4
+
+# Histogramme pour l'IDH 2021 par région
+ggplot(hdi_data, aes(x = hdi_2021, fill = region)) +
+  geom_histogram(binwidth = 0.05, position = "dodge", alpha = 0.7, color = "black") +
+  labs(title = "Histogramme de l'IDH 2021 par région", 
+       x = "IDH 2021", 
+       y = "Nombre de Pays") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "right"
+  ) +
+  scale_fill_brewer(palette = "Set3")
+
+# Boxplot pour l'IDH 2021 par région
+# Calcul des médianes pour annotation
+medians <- hdi_data %>%
+  group_by(region) %>%
+  summarize(median_hdi_2021 = median(hdi_2021, na.rm = TRUE))
+
+ggplot(hdi_data, aes(x = region, y = hdi_2021, fill = region)) +
+  geom_boxplot(outlier.color = "red", outlier.shape = 8, outlier.size = 2, alpha = 0.7) +
+  geom_jitter(width = 0.2, alpha = 0.5) +
+  labs(title = "Boxplot de l'IDH 2021 par région", 
+       x = "Région", 
+       y = "IDH 2021") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 14, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  ) +
+  scale_fill_brewer(palette = "Set3") +
+  geom_text(data = medians, aes(label = round(median_hdi_2021, 2), y = median_hdi_2021 + 0.02), color = "black", size = 3, vjust = -0.5)
+
+#Interprétation
+# Résumés statistiques :
+
+# Fournissent la moyenne et l'écart type de l'IDH 2021 pour chaque région.
+# Histogrammes et boxplots :
+
+# Les histogrammes montrent la distribution de l'IDH 2021 par région.
+# Les boxplots permettent de visualiser les différences de médiane et de variance de l'IDH 2021 entre les régions.
+# Rapport de corrélation (Eta squared) :
+
+# Le rapport de corrélation quantifie la proportion de la variance de l'IDH 2021 expliquée par la région. Un Eta squared proche # de 1 indique une forte association.
+# Test d'égalité des moyennes (ANOVA) :
+
+# Hypothèses :
+# H0 (hypothèse nulle) : Les moyennes de l'IDH 2021 sont égales entre les différentes régions.
+# H1 (hypothèse alternative) : Au moins une des moyennes de l'IDH 2021 est différente entre les régions.
+# Conclusion : Si la p-value est inférieure à 0.05, on rejette l'hypothèse nulle et on conclut que les moyennes de l'IDH 2021 # sont significativement différentes entre les régions.
+
+
+# Calculer le modèle ANOVA
+model <- aov(hdi_2021 ~ region, data = hdi_data)
+
+# Calculer Eta squared
+ss_total <- sum(anova(model)$"Sum Sq")
+ss_explained <- anova(model)$"Sum Sq"[1]
+eta_squared <- ss_explained / ss_total
+cat("Eta squared pour l'IDH 2021 par région est :", eta_squared, "\n")
+
+# Test d'égalité des moyennes (ANOVA)
+anova_result <- anova(model)
+print(anova_result)
+
+
+
+
+# Créer un tableau de contingence
+contingency_table <- table(hdi_data$region, hdi_data$hdicode)
+contingency_df <- as.data.frame(contingency_table)
+colnames(contingency_df) <- c("Région", "Catégorie_IDH", "Fréquence")
+
+# Représentation graphique du tableau de contingence avec un heatmap
+# Représentation graphique du tableau de contingence avec un heatmap amélioré
+ggplot(contingency_df, aes(Région, Catégorie_IDH, fill = Fréquence)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = Fréquence), color = "black", size = 4) +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  labs(title = "Heatmap du Tableau de Contingence entre Région et Catégorie d'IDH", 
+       x = "Région", 
+       y = "Catégorie d'IDH",
+       fill = "Fréquence") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title = element_text(size = 14, face = "bold"),
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10)
+  )
+
+# Test du chi-carré d'indépendance
+chi2_test <- chisq.test(contingency_table)
+
+# Afficher les résultats du test du chi-carré
+print(chi2_test)
+
+# Interprétation
+if(chi2_test$p.value < 0.05) {
+  cat("Les variables 'region' et 'hdicode' sont statistiquement dépendantes (p-value <", chi2_test$p.value, ").\n")
+} else {
+  cat("Les variables 'region' et 'hdicode' sont statistiquement indépendantes (p-value =", chi2_test$p.value, ").\n")
+}
+
+#Interprétation
+#Tableau de contingence :
+
+#Le tableau de contingence montre le nombre de pays dans chaque combinaison de region et hdicode.
+#La représentation graphique en heatmap visualise ces fréquences de manière intuitive.
+#Test d'indépendance (Chi-carré) :
+
+#Hypothèses :
+#H0 (hypothèse nulle) : Les variables region et hdicode sont indépendantes.
+#H1 (hypothèse alternative) : Les variables region et hdicode sont dépendantes.
+#Conclusion :
+#Si la p-value est inférieure à 0.05, on rejette l'hypothèse nulle et on conclut que les variables region et hdicode sont #statistiquement dépendantes.
+#Si la p-value est supérieure à 0.05, on ne peut pas rejeter l'hypothèse nulle et on conclut que les variables sont #indépendantes.
+
 
 ```
 
