@@ -198,6 +198,13 @@ region_hdi_growth <- hdi_data %>%
   mutate(hdi_growth_2000_2021 = hdi_2021_mean - hdi_2000_mean) %>%
   arrange(desc(hdi_growth_2000_2021))
 
+# Calculer la croissance moyenne de l'IDH pour chaque région
+region_hdi_growth2 <- hdi_data %>%
+  group_by(region) %>%
+  summarize(
+    hdi_growth_mean = mean(hdi_growth_2000_2021, na.rm = TRUE)
+  )
+
 # Enhanced box plot for HDI growth by region
 ggplot(hdi_data, aes(x = reorder(region, hdi_growth_2000_2021), y = hdi_growth_2000_2021, fill = region)) +
   geom_boxplot(outlier.shape = 21, outlier.size = 2) +
@@ -215,6 +222,24 @@ ggplot(hdi_data, aes(x = reorder(region, hdi_growth_2000_2021), y = hdi_growth_2
     panel.grid.minor = element_line(color = "grey90")
   ) +
   scale_fill_brewer(palette = "Paired")
+
+
+# Histogramme de la croissance moyenne de l'IDH par région
+ggplot(region_hdi_growth2, aes(x = reorder(region, hdi_growth_mean), y = hdi_growth_mean)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black", alpha = 0.7) +
+  coord_flip() +
+  xlab("Région") +
+  ylab("Croissance Moyenne de l'IDH (2000-2021)") +
+  ggtitle("Croissance Moyenne de l'IDH par Région (2000-2021)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  ) +
+  geom_text(aes(label=round(hdi_growth_mean, 3)), hjust=1.1, color="black")
+
+
 
 # Résumé pour les  regions 
 region_summary <- hdi_data %>%
