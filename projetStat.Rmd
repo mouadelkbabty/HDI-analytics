@@ -463,7 +463,7 @@ print(cor_test)
 
 
 
-#4
+#4a
 
 # Histogramme pour l'IDH 2021 par région
 ggplot(hdi_data, aes(x = hdi_2021, fill = region)) +
@@ -536,7 +536,7 @@ anova_result <- anova(model)
 print(anova_result)
 
 
-
+#4B
 
 # Créer un tableau de contingence
 contingency_table <- table(hdi_data$region, hdi_data$hdicode)
@@ -590,6 +590,123 @@ if(chi2_test$p.value < 0.05) {
 #Si la p-value est inférieure à 0.05, on rejette l'hypothèse nulle et on conclut que les variables region et hdicode sont #statistiquement dépendantes.
 #Si la p-value est supérieure à 0.05, on ne peut pas rejeter l'hypothèse nulle et on conclut que les variables sont #indépendantes.
 
+
+
+
+
+#4c
+# Tracer le nuage de points et la droite des moindres carrés
+ggplot(hdi_data, aes(x = gnipc_2021, y = hdi_2021)) +
+  geom_point(color = "#69b3a2", alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed") +
+  labs(title = "Nuage de points et droite des moindres carrés entre RNB par habitant en 2021 et IDH en 2021", 
+       x = "RNB par habitant en 2021 ($)", 
+       y = "IDH en 2021") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 10),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+
+# Calculer le coefficient de corrélation linéaire
+correlation <- cor(hdi_data$gnipc_2021, hdi_data$hdi_2021, use = "complete.obs")
+cat("Le coefficient de corrélation linéaire entre gnipc_2021 et hdi_2021 est :", correlation, "\n")
+
+# Ajuster le modèle de régression linéaire
+model <- lm(hdi_2021 ~ gnipc_2021, data = hdi_data)
+
+# Résumé du modèle de régression
+summary_model <- summary(model)
+print(summary_model)
+
+# Interprétation
+if(summary_model$coefficients[2, 4] < 0.05) {
+  cat("Le coefficient de régression est statistiquement significatif (p-value <", summary_model$coefficients[2, 4], ").\n")
+} else {
+  cat("Le coefficient de régression n'est pas statistiquement significatif (p-value =", summary_model$coefficients[2, 4], ").\n")
+}
+
+# Afficher les résidus du modèle
+plot(model, which = 1)
+
+# Tester l'hypothèse de normalité des résidus avec le test de Shapiro-Wilk
+shapiro_test <- shapiro.test(residuals(model))
+print(shapiro_test)
+
+# Interprétation
+# Nuage de points et droite des moindres carrés :
+
+# Visualise la relation entre le RNB par habitant en 2021 et l'IDH en 2021.
+# La droite des moindres carrés montre la tendance générale.
+# Coefficient de corrélation linéaire :
+
+# Le coefficient de corrélation de Pearson quantifie la force et la direction de la relation linéaire entre les deux variables. # Un coefficient proche de 1 ou -1 indique une forte corrélation, tandis qu'un coefficient proche de 0 indique une faible # corrélation.
+# Pertinence de la régression linéaire :
+
+# Résumé du modèle : Fournit des informations sur le modèle ajusté, y compris le coefficient de régression et sa significativité.
+# Test de significativité : Si la p-value est inférieure à 0.05, le coefficient de régression est statistiquement significatif, # ce qui indique une relation linéaire significative entre les deux variables.
+# Normalité des résidus : Le test de Shapiro-Wilk vérifie si les résidus de la régression suivent une distribution normale, ce # qui est une hypothèse clé de la régression linéaire
+
+
+
+
+#D'autre variable
+# Tracer le nuage de points et la droite des moindres carrés
+ggplot(hdi_data, aes(x = le_1990, y = hdi_2021)) +
+  geom_point(color = "#69b3a2", alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "blue", linetype = "dashed") +
+  labs(title = "Nuage de points et droite des moindres carrés entre l'espérance de vie en 1990 et l'IDH en 2021", 
+       x = "Espérance de vie en 1990 (années)", 
+       y = "IDH en 2021") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 10),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+
+# Calculer le coefficient de corrélation linéaire
+correlation <- cor(hdi_data$le_1990, hdi_data$hdi_2021, use = "complete.obs")
+cat("Le coefficient de corrélation linéaire entre le_1990 et hdi_2021 est :", correlation, "\n")
+
+
+# Ajuster le modèle de régression linéaire
+model <- lm(hdi_2021 ~ le_1990, data = hdi_data)
+
+# Résumé du modèle de régression
+summary_model <- summary(model)
+print(summary_model)
+
+# Interprétation de la significativité
+if(summary_model$coefficients[2, 4] < 0.05) {
+  cat("Le coefficient de régression est statistiquement significatif (p-value <", summary_model$coefficients[2, 4], ").\n")
+} else {
+  cat("Le coefficient de régression n'est pas statistiquement significatif (p-value =", summary_model$coefficients[2, 4], ").\n")
+}
+
+# Tester l'hypothèse de normalité des résidus avec le test de Shapiro-Wilk
+shapiro_test <- shapiro.test(residuals(model))
+print(shapiro_test)
+
+# Graphiques de diagnostic de la régression linéaire
+par(mfrow = c(2, 2)) # 2x2 grid of plots
+plot(model)
+
+
+#Interprétation des résultats
+#Nuage de points et droite des moindres carrés :
+
+#Visualise la relation entre l'espérance de vie en 1990 et l'IDH en 2021.
+#La droite des moindres carrés montre la tendance générale.
+#Coefficient de corrélation linéaire :
+
+#Le coefficient de corrélation de Pearson quantifie la force et la direction de la relation linéaire entre les deux variables.
+#Pertinence de la régression linéaire :
+
+#Résumé du modèle : Fournit des informations sur le modèle ajusté, y compris le coefficient de régression et sa significativité.
+#Test de significativité : Si la p-value est inférieure à 0.05, le coefficient de régression est statistiquement significatif.
+#Normalité des résidus : Le test de Shapiro-Wilk vérifie si les résidus de la régression suivent une distribution normale.
 
 ```
 
