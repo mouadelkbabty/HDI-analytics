@@ -1,4 +1,10 @@
-# Rapport d'Analyse de Données
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
++# Rapport d'Analyse de Données
 
 ## Introduction
 Ce rapport documente l'analyse approfondie des données de l'Indice de Développement Humain (IDH) collectées. L'objectif est de comprendre les tendances de développement humain à travers différents pays et régions du monde sur une période de temps donnée, allant de 1960 à 2021. Nous utiliserons diverses techniques de nettoyage, transformation et visualisation de données pour explorer ces informations de manière exhaustive.
@@ -35,13 +41,252 @@ Ce rapport documente l'analyse approfondie des données de l'Indice de Développ
   - `gnipc_1990`: Revenu national brut par habitant en 1990
   - `gdi_1990`: Indice de développement lié au genre en 1990
   
-1. Quels sont les pays qui ont connu la plus forte croissance de leur population et de leur PIB ? Y a-t-il des chevauchements ?
+# Variables d'Intérêt
+
+# Variables Qualitatives
+ **hdicode** (Catégorie de l'IDH)
+      - Description: Cette variable indique la catégorie de l'Indice de Développement Humain (IDH) du pays.
+      - Modalités:
+          - Low: Pays à faible IDH
+          - Medium: Pays à IDH moyen
+          - High: Pays à IDH élevé
+          - Very High: Pays à IDH très élevé
+      - Données manquantes: Si présentes, elles indiqueront que l'IDH de ce pays n'est pas catégorisé.
+
+ **region** (Région géographique)
+   - Description: Cette variable représente la région géographique où se trouve le pays.
+   - Modalités:
+         - SA: Asie du Sud
+         - SSA: Afrique subsaharienne
+         - ECA: Europe et Asie centrale
+         - AS: Asie
+         - (Autres modalités possibles correspondant à d'autres régions)
+   - Données manquantes: Indiqueront qu'aucune région géographique n'est attribuée au pays.
+
+# Variables Quantitatives
+ **hdi_2021** (IDH en 2021)
+   - Description: Cette variable représente l'Indice de Développement Humain pour l'année 2021.
+   - Unité de mesure: L'IDH est un nombre décimal entre 0 et 1, où 0 représente un développement humain très faible et 1 un         développement humain très élevé.
+   - Données manquantes: Si présentes, indiqueront que l'IDH pour l'année 2021 n'est pas disponible pour ce pays.
+
+ **gnipc_1990** (Revenu National Brut par habitant en 1990)
+  - Description: Cette variable indique le Revenu National Brut (RNB) par habitant pour l'année 1990.
+  - Unité de mesure: Le RNB par habitant est généralement exprimé en dollars américains ($) constants pour une comparaison         internationale.
+   - Données manquantes: Si présentes, indiqueront que le RNB par habitant pour l'année 1990 n'est pas disponible pour ce pays.
+  
+  
+  
+1. Quels sont les pays qui ont connu la plus forte croissance de leur IDH de 2000 à 2021?
+  Description : Cette question explore les pays qui ont réalisé les plus grandes améliorations dans leur développement humain    au cours du 21e siècle.
+  Analyse : Calculer la croissance de l'IDH pour chaque pays entre 2000 et 2021 et identifier ceux avec la plus forte            croissance.
+  Variables Utilisées : hdi_2000, hdi_2021.
 
 2. Quelles sont les régions qui ont connu la plus forte croissance de l'IDH au 21e siècle ?
 
-3. Quels sont les facteurs fortement corrélés à l'espérance de vie ?
+3. Comment la distribution de l'espérance de vie (le_1990) varie-t-elle entre les différentes catégories d'IDH (hdicode)?
+     Description : Cette question explore comment l'espérance de vie en 1990 varie en fonction de la catégorie de                   développement humain d'un pays.
+     Analyse : Utiliser des boxplots ou des diagrammes en barres pour comparer l'espérance de vie moyenne entre les                 différentes catégories d'IDH.
 
-4. Quels sont les facteurs qui différencient les pays à « haut revenu » des pays à « bas revenu » ?
+2. Existe-t-il une corrélation entre le Revenu National Brut par habitant (gnipc_1990) et l'IDH (hdi_2021)?
+    Description : Cette question examine la relation entre le revenu d'un pays en 1990 et son développement humain en 2021.
+    Analyse : Utiliser des outils statistiques pour analyser la corrélation entre gnipc_1990 et hdi_2021.
+    Variables Utilisées : gnipc_1990, hdi_2021.
+ 
+```{r}
+ 
+library(ggplot2)
+library(dplyr)
+
+# Load the data
+hdi_data <- read.csv('HDI.csv')
+
+# Remplacement des abréviations des régions par leurs noms complets
+hdi_data$region <- gsub("EAP", "East Asia and Pacific", hdi_data$region)
+hdi_data$region <- gsub("ECA", "Europe and Central Asia", hdi_data$region)
+hdi_data$region <- gsub("LAC", "Latin America & the Caribbean", hdi_data$region)
+hdi_data$region <- gsub("MNA.", "Middle East and North Africa", hdi_data$region)
+hdi_data$region <- gsub("SAR", "South Asia", hdi_data$region)
+hdi_data$region <- gsub("SSA", "Sub-Saharan Africa", hdi_data$region)
+hdi_data$region <- gsub("SA", "South Asia", hdi_data$region)
+hdi_data$region <- gsub("AS", "Asia", hdi_data$region)
+
+# Supprimer les lignes avec des valeurs manquantes dans les colonnes qualitatives
+hdi_data <- hdi_data %>%
+  filter(!is.na(hdicode) & hdicode != "" & !is.na(region) & region != "") 
+
+# Calculate the HDI growth for each country from 2000 to 2021
+hdi_data <- hdi_data %>%
+  mutate(hdi_growth_2000_2021 = hdi_2021 - hdi_2000)
+
+# Remove non-finite values in hdi_growth_2000_2021
+hdi_data <- hdi_data %>%
+  filter(is.finite(hdi_growth_2000_2021))
+
+# Part 1: Countries with the Highest HDI Growth from 2000 to 2021
+
+# Identify top countries with highest HDI growth
+top_countries_hdi_growth <- hdi_data %>%
+  arrange(desc(hdi_growth_2000_2021)) %>%
+  select(country, hdi_2000, hdi_2021, hdi_growth_2000_2021) %>%
+  head(10)
+
+# Check the data to ensure it's correct
+print(top_countries_hdi_growth)
+
+# Diagramme en barres pour la distribution des catégories de l'IDH
+ggplot(hdi_data, aes(x = hdicode)) +
+  geom_bar(fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution des Catégories de l'IDH", x = "Catégorie de l'IDH", y = "Nombre de Pays") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  ) +
+  geom_text(stat='count', aes(label=..count..), vjust=-0.5)
+
+# Boxplot pour le RNB par habitant en 1990
+ggplot(hdi_data, aes(y = gnipc_1990)) +
+  geom_boxplot(fill = "lightgreen", color = "black", alpha = 0.7) +
+  labs(title = "Boxplot du RNB par habitant en 1990", y = "RNB par habitant en 1990 ($)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+
+
+# Histogramme pour la distribution de l'IDH en 2021
+ggplot(hdi_data, aes(x = hdi_2021)) +
+  geom_histogram(binwidth = 0.05, fill = "steelblue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution de l'IDH en 2021", x = "IDH en 2021", y = "Nombre de Pays") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  ) +
+  geom_density(aes(y = ..density..), color = "red", size = 1, alpha = 0.7)
+
+
+
+# Diagramme en barres pour les 10 pays ayant la plus forte croissance de l'IDH
+ggplot(top_countries_hdi_growth, aes(x = reorder(country, hdi_growth_2000_2021), y = hdi_growth_2000_2021)) +
+  geom_bar(stat = "identity", fill = "#2c7fb8", color = "black", alpha = 0.7) +
+  coord_flip() +
+  xlab("Pays") +
+  ylab("Croissance de l'IDH (2000-2021)") +
+  ggtitle("Top 10 des pays avec la plus forte croissance de l'IDH (2000-2021)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 12),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  ) +
+  geom_text(aes(label=round(hdi_growth_2000_2021, 3)), hjust=1.1, color="white")
+
+# Part 2: Regions with the Highest HDI Growth in the 21st Century
+
+# Calculate the average HDI growth for each region
+region_hdi_growth <- hdi_data %>%
+  group_by(region) %>%
+  summarize(
+    hdi_2000_mean = mean(hdi_2000, na.rm = TRUE),
+    hdi_2021_mean = mean(hdi_2021, na.rm = TRUE)
+  ) %>%
+  mutate(hdi_growth_2000_2021 = hdi_2021_mean - hdi_2000_mean) %>%
+  arrange(desc(hdi_growth_2000_2021))
+
+# Enhanced box plot for HDI growth by region
+ggplot(hdi_data, aes(x = reorder(region, hdi_growth_2000_2021), y = hdi_growth_2000_2021, fill = region)) +
+  geom_boxplot(outlier.shape = 21, outlier.size = 2) +
+  ylab("HDI Growth (2000-2021)") +
+  xlab("Region") +
+  ggtitle("HDI Growth by Region (2000-2021)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
+    axis.text = element_text(size = 12, face = "bold"),
+    axis.title = element_text(size = 14, face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    panel.grid.major = element_line(color = "grey80"),
+    panel.grid.minor = element_line(color = "grey90")
+  ) +
+  scale_fill_brewer(palette = "Paired")
+
+# Résumé pour les  regions 
+region_summary <- hdi_data %>%
+  group_by(region) %>%
+  summarize(count = n())
+
+print(region_summary)
+
+# Résumé statistiques pour la croissance de l'IDH 
+hdi_growth_summary <- hdi_data %>%
+  summarize(
+    mean = mean(hdi_growth_2000_2021, na.rm = TRUE),
+    variance = var(hdi_growth_2000_2021, na.rm = TRUE),
+    sd = sd(hdi_growth_2000_2021, na.rm = TRUE)
+  )
+
+print(hdi_growth_summary)
+
+# Histogram and QQ plot for HDI growth
+ggplot(hdi_data, aes(x = hdi_growth_2000_2021)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "#69b3a2", color = "black", alpha = 0.7) +
+  geom_density(color = "blue", size = 1) +
+  ggtitle("Histogram and Density Plot of HDI Growth (2000-2021)") +
+  xlab("HDI Growth (2000-2021)") +
+  ylab("Density") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+
+# QQ plot
+ggplot(hdi_data, aes(sample = hdi_growth_2000_2021)) +
+  stat_qq() +
+  stat_qq_line() +
+  ggtitle("QQ Plot of HDI Growth (2000-2021)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+
+# Shapiro-Wilk test for normality
+shapiro_test <- shapiro.test(hdi_data$hdi_growth_2000_2021)
+print(shapiro_test)
+
+
+# Confidence interval for the mean of HDI growth
+hdi_growth_mean <- mean(hdi_data$hdi_growth_2000_2021, na.rm = TRUE)
+hdi_growth_sd <- sd(hdi_data$hdi_growth_2000_2021, na.rm = TRUE)
+n <- nrow(hdi_data)
+
+alpha <- 0.05
+error_margin <- qt(1 - alpha/2, df = n - 1) * hdi_growth_sd / sqrt(n)
+ci_lower <- hdi_growth_mean - error_margin
+ci_upper <- hdi_growth_mean + error_margin
+
+cat("95% Confidence Interval for the mean of HDI Growth (2000-2021): [", ci_lower, ", ", ci_upper, "]\n")
+
+# Proportion des pays de la région  Sub-Saharan Africa
+prop_ssa <- sum(hdi_data$region == "Sub-Saharan Africa") / nrow(hdi_data)
+
+# Interval de confiance pour la région Sub-Saharan Africa
+prop_ci <- prop.test(sum(hdi_data$region == "Sub-Saharan Africa"), nrow(hdi_data), conf.level = 0.95)
+print(prop_ci)
+
+
+```
+
+
 
 ```{r}
 file_path <- "HDI.csv"
