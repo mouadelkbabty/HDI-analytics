@@ -309,6 +309,71 @@ prop_ci <- prop.test(sum(hdi_data$region == "Sub-Saharan Africa"), nrow(hdi_data
 print(prop_ci)
 
 
+
+# Boxplot pour l'espérance de vie en 1990 par catégorie d'IDH
+ggplot(hdi_data, aes(x = hdicode, y = le_1990, fill = hdicode)) +
+  geom_boxplot() +
+  labs(title = "Distribution de l'espérance de vie en 1990 par catégorie d'IDH", 
+       x = "Catégorie de l'IDH", 
+       y = "Espérance de vie en 1990 (années)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  ) +
+  scale_fill_brewer(palette = "Set3")
+
+# Calculer l'espérance de vie moyenne en 1990 par catégorie d'IDH
+life_expectancy_summary <- hdi_data %>%
+  group_by(hdicode) %>%
+  summarize(mean_le_1990 = mean(le_1990, na.rm = TRUE))
+
+# Diagramme en barres pour l'espérance de vie moyenne en 1990 par catégorie d'IDH
+ggplot(life_expectancy_summary, aes(x = reorder(hdicode, mean_le_1990), y = mean_le_1990, fill = hdicode)) +
+  geom_bar(stat = "identity", color = "black", alpha = 0.7) +
+  labs(title = "Espérance de vie moyenne en 1990 par catégorie d'IDH", 
+       x = "Catégorie de l'IDH", 
+       y = "Espérance de vie moyenne en 1990 (années)") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.position = "none"
+  ) +
+  scale_fill_brewer(palette = "Set3") +
+  geom_text(aes(label=round(mean_le_1990, 1)), vjust=-0.5, color="black")
+
+
+# Histogramme et QQ plot pour chaque catégorie d'IDH
+ggplot(hdi_data, aes(x = le_1990)) +
+  geom_histogram(aes(y = ..density..), bins = 30, fill = "#69b3a2", color = "black", alpha = 0.7) +
+  facet_wrap(~hdicode) +
+  geom_density(color = "blue", size = 1) +
+  ggtitle("Histogramme et densité de l'espérance de vie en 1990 par catégorie d'IDH") +
+  xlab("Espérance de vie en 1990 (années)") +
+  ylab("Densité") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+
+ggplot(hdi_data, aes(sample = le_1990)) +
+  stat_qq() +
+  stat_qq_line() +
+  facet_wrap(~hdicode) +
+  ggtitle("QQ Plot de l'espérance de vie en 1990 par catégorie d'IDH") +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold", size = 14),
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold")
+  )
+
 ```
 
 
