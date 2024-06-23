@@ -4,13 +4,13 @@ output:
   html_document: default
 ---
 
-+# Rapport d'Analyse de Données
+# Rapport d'Analyse de Données
 
 ## Introduction
 Ce rapport documente l'analyse approfondie des données de l'Indice de Développement Humain (IDH) collectées. L'objectif est de comprendre les tendances de développement humain à travers différents pays et régions du monde sur une période de temps donnée, allant de 1960 à 2021. Nous utiliserons diverses techniques de nettoyage, transformation et visualisation de données pour explorer ces informations de manière exhaustive.
 
 ## Auteurs 
-- El kbabty Mouad
+- El Kbabty Mouad
 - Essouaid Khalil
 
 ## Description du Jeu de Données
@@ -41,56 +41,56 @@ Ce rapport documente l'analyse approfondie des données de l'Indice de Développ
   - `gnipc_1990`: Revenu national brut par habitant en 1990
   - `gdi_1990`: Indice de développement lié au genre en 1990
   
-# Variables d'Intérêt
+## Variables d'Intérêt
 
-# Variables Qualitatives
- **hdicode** (Catégorie de l'IDH)
-      - Description: Cette variable indique la catégorie de l'Indice de Développement Humain (IDH) du pays.
-      - Modalités:
-          - Low: Pays à faible IDH
-          - Medium: Pays à IDH moyen
-          - High: Pays à IDH élevé
-          - Very High: Pays à IDH très élevé
-      - Données manquantes: Si présentes, elles indiqueront que l'IDH de ce pays n'est pas catégorisé.
+### Variables Qualitatives
+- **hdicode** (Catégorie de l'IDH)
+  - Description: Cette variable indique la catégorie de l'Indice de Développement Humain (IDH) du pays.
+  - Modalités:
+    - Low: Pays à faible IDH
+    - Medium: Pays à IDH moyen
+    - High: Pays à IDH élevé
+    - Very High: Pays à IDH très élevé
+  - Données manquantes: Si présentes, elles indiqueront que l'IDH de ce pays n'est pas catégorisé.
 
- **region** (Région géographique)
-   - Description: Cette variable représente la région géographique où se trouve le pays.
-   - Modalités:
-         - SA: Asie du Sud
-         - SSA: Afrique subsaharienne
-         - ECA: Europe et Asie centrale
-         - AS: Asie
-         - (Autres modalités possibles correspondant à d'autres régions)
-   - Données manquantes: Indiqueront qu'aucune région géographique n'est attribuée au pays.
+- **region** (Région géographique)
+  - Description: Cette variable représente la région géographique où se trouve le pays.
+  - Modalités:
+    - SA: Asie du Sud
+    - SSA: Afrique subsaharienne
+    - ECA: Europe et Asie centrale
+    - AS: Asie
+    - (Autres modalités possibles correspondant à d'autres régions)
+  - Données manquantes: Indiqueront qu'aucune région géographique n'est attribuée au pays.
 
-# Variables Quantitatives
- **hdi_2021** (IDH en 2021)
-   - Description: Cette variable représente l'Indice de Développement Humain pour l'année 2021.
-   - Unité de mesure: L'IDH est un nombre décimal entre 0 et 1, où 0 représente un développement humain très faible et 1 un         développement humain très élevé.
-   - Données manquantes: Si présentes, indiqueront que l'IDH pour l'année 2021 n'est pas disponible pour ce pays.
+### Variables Quantitatives
+- **hdi_2021** (IDH en 2021)
+  - Description: Cette variable représente l'Indice de Développement Humain pour l'année 2021.
+  - Unité de mesure: L'IDH est un nombre décimal entre 0 et 1, où 0 représente un développement humain très faible et 1 un développement humain très élevé.
+  - Données manquantes: Si présentes, indiqueront que l'IDH pour l'année 2021 n'est pas disponible pour ce pays.
 
- **gnipc_1990** (Revenu National Brut par habitant en 1990)
+- **gnipc_1990** (Revenu National Brut par habitant en 1990)
   - Description: Cette variable indique le Revenu National Brut (RNB) par habitant pour l'année 1990.
-  - Unité de mesure: Le RNB par habitant est généralement exprimé en dollars américains ($) constants pour une comparaison         internationale.
-   - Données manquantes: Si présentes, indiqueront que le RNB par habitant pour l'année 1990 n'est pas disponible pour ce pays.
-  
-  
-  
-1. Quels sont les pays qui ont connu la plus forte croissance de leur IDH de 2000 à 2021?
-  Description : Cette question explore les pays qui ont réalisé les plus grandes améliorations dans leur développement humain    au cours du 21e siècle.
-  Analyse : Calculer la croissance de l'IDH pour chaque pays entre 2000 et 2021 et identifier ceux avec la plus forte            croissance.
-  Variables Utilisées : hdi_2000, hdi_2021.
+  - Unité de mesure: Le RNB par habitant est généralement exprimé en dollars américains ($) constants pour une comparaison internationale.
+  - Données manquantes: Si présentes, indiqueront que le RNB par habitant pour l'année 1990 n'est pas disponible pour ce pays.
 
-2. Quelles sont les régions qui ont connu la plus forte croissance de l'IDH au 21e siècle ?
+## Questions de Recherche
 
-3. Comment la distribution de l'espérance de vie (le_1990) varie-t-elle entre les différentes catégories d'IDH (hdicode)?
-     Description : Cette question explore comment l'espérance de vie en 1990 varie en fonction de la catégorie de                   développement humain d'un pays.
-     Analyse : Utiliser des boxplots ou des diagrammes en barres pour comparer l'espérance de vie moyenne entre les                 différentes catégories d'IDH.
+1. **Quels sont les pays qui ont connu la plus forte croissance de leur IDH de 2000 à 2021?**
+   - Description : Cette question explore les pays qui ont réalisé les plus grandes améliorations dans leur développement humain au cours du 21e siècle.
+   - Analyse : Calculer la croissance de l'IDH pour chaque pays entre 2000 et 2021 et identifier ceux avec la plus forte croissance.
+   - Variables Utilisées : `hdi_2000`, `hdi_2021`.
 
-4. Existe-t-il une corrélation entre le Revenu National Brut par habitant (gnipc_1990) et l'IDH (hdi_2021)?
-    Description : Cette question examine la relation entre le revenu d'un pays en 1990 et son développement humain en 2021.
-    Analyse : Utiliser des outils statistiques pour analyser la corrélation entre gnipc_1990 et hdi_2021.
-    Variables Utilisées : gnipc_1990, hdi_2021.
+2. **Quelles sont les régions qui ont connu la plus forte croissance de l'IDH au 21e siècle?**
+
+3. **Comment la distribution de l'espérance de vie (le_1990) varie-t-elle entre les différentes catégories d'IDH (hdicode)?**
+   - Description : Cette question explore comment l'espérance de vie en 1990 varie en fonction de la catégorie de développement humain d'un pays.
+   - Analyse : Utiliser des boxplots ou des diagrammes en barres pour comparer l'espérance de vie moyenne entre les différentes catégories d'IDH.
+
+4. **Existe-t-il une corrélation entre le Revenu National Brut par habitant (gnipc_1990) et l'IDH (hdi_2021)?**
+   - Description : Cette question examine la relation entre le revenu d'un pays en 1990 et son développement humain en 2021.
+   - Analyse : Utiliser des outils statistiques pour analyser la corrélation entre `gnipc_1990` et `hdi_2021`.
+   - Variables Utilisées : `gnipc_1990`, `hdi_2021`.
  
 ```{r}
  
@@ -707,131 +707,5 @@ plot(model)
 #Résumé du modèle : Fournit des informations sur le modèle ajusté, y compris le coefficient de régression et sa significativité.
 #Test de significativité : Si la p-value est inférieure à 0.05, le coefficient de régression est statistiquement significatif.
 #Normalité des résidus : Le test de Shapiro-Wilk vérifie si les résidus de la régression suivent une distribution normale.
-
-```
-
-
-
-```{r}
-file_path <- "HDI.csv"
-data <- read.csv(file_path)
-
-# Suppression des lignes avec des valeurs nulles ou vides dans la colonne 'region'
-data <- data[!is.na(data$region) & data$region != "", ]
-
-# Remplacement des abréviations des régions par leurs noms complets
-data$region <- gsub("EAP", "East Asia and Pacific", data$region)
-data$region <- gsub("ECA", "Europe and Central Asia", data$region)
-data$region <- gsub("LAC", "Latin America and the Caribbean", data$region)
-data$region <- gsub("MNA.", "Middle East and North Africa", data$region)
-data$region <- gsub("SAR", "South Asia", data$region)
-data$region <- gsub("SSA", "Sub-Saharan Africa", data$region)
-data$region <- gsub("SA", "South Asia", data$region)
-data$region <- gsub("AS", "Asia", data$region)
-
-# Vérification des modifications
-head(data)
-qual_vars <- c("region", "hdicode")
-quant_vars <- c("gnipc_1990", "le_1990")
-
-# Description des variables qualitatives
-for (var in qual_vars) {
-  cat("Résumé de la variable qualitative", var, ":\n")
-  print(summary(as.factor(data[[var]])))
-  cat("Données manquantes :", sum(is.na(data[[var]])), "\n\n")
-}
-
-# Description des variables quantitatives
-for (var in quant_vars) {
-  cat("Résumé de la variable quantitative", var, ":\n")
-  print(summary(data[[var]]))
-  cat("Données manquantes :", sum(is.na(data[[var]])), "\n\n")
-}
-
-# Sélection des variables d'intérêt
-qual_vars <- c("region", "hdicode")
-quant_vars <- c("gnipc_1990", "le_1990")
-
-# Graphiques pour les variables qualitatives
-library(ggplot2)
-
-# Vecteurs de noms correspondants
-var_labels <- list(
-  region = "Geographic Region",
-  hdicode = "HDI Category",
-  gnipc_1990 = "GNI per Capita (1990)",
-  le_1990 = "Life Expectancy (1990)"
-)
-
-# Thème personnalisé pour les graphiques
-theme_custom <- theme_minimal(base_size = 15) +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 20, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    axis.title.x = element_text(size = 16),
-    axis.title.y = element_text(size = 16),
-    panel.grid.major = element_line(color = "grey80"),
-    panel.grid.minor = element_blank(),
-    plot.background = element_rect(fill = "white", color = "grey85")
-  )
-
-# Analyse univariée pour les variables qualitatives
-for (var in qual_vars) {
-  p <- ggplot(data, aes_string(var)) + 
-        geom_bar(fill = "#0073C2FF", color = "black") + 
-        ggtitle(paste("Distribution of", var_labels[[var]])) +
-        xlab(var_labels[[var]]) +
-        ylab("Count") +
-        theme_custom
-  print(p)
-  
-  cat("Résumé de la variable qualitative", var, ":\n")
-  print(summary(as.factor(data[[var]])))
-  cat("Données manquantes :", sum(is.na(data[[var]])), "\n\n")
-}
-
-# Analyse univariée pour les variables quantitatives
-for (var in quant_vars) {
-  p <- ggplot(data, aes_string(var)) + 
-        geom_histogram(bins = 30, fill = "#0073C2FF", color = "black") + 
-        ggtitle(paste("Distribution of", var_labels[[var]])) +
-        xlab(var_labels[[var]]) +
-        ylab("Frequency") +
-        theme_custom
-  print(p)
-  
-  cat("Résumé de la variable quantitative", var, ":\n")
-  print(summary(data[[var]]))
-  cat("Données manquantes :", sum(is.na(data[[var]])), "\n\n")
-  
-  # Test de normalité
-  shapiro_test <- shapiro.test(data[[var]])
-  cat("Test de normalité de Shapiro-Wilk pour", var, ":\n")
-  print(shapiro_test)
-  
-  # Estimateurs de moyenne et variance
-  mean_var <- mean(data[[var]], na.rm = TRUE)
-  var_var <- var(data[[var]], na.rm = TRUE)
-  cat("Moyenne de", var, ":", mean_var, "\n")
-  cat("Variance de", var, ":", var_var, "\n")
-  
-  # Intervalle de confiance pour la moyenne
-  n <- sum(!is.na(data[[var]]))
-  error <- qnorm(0.975) * sqrt(var_var/n)
-  ci <- c(mean_var - error, mean_var + error)
-  cat("Intervalle de confiance de la moyenne de", var, ":", ci, "\n\n")
-}
-
-# Calcul d'un intervalle de confiance d'une proportion pertinente (par exemple, proportion de pays avec un HDI élevé)
-high_hdi_prop <- sum(data$hdicode == "High" | data$hdicode == "Very High", na.rm = TRUE) / nrow(data)
-cat("Proportion de pays avec un HDI élevé :", high_hdi_prop, "\n")
-
-# Intervalle de confiance pour la proportion
-z <- qnorm(0.975)
-ci_prop <- c(
-  high_hdi_prop - z * sqrt((high_hdi_prop * (1 - high_hdi_prop)) / nrow(data)),
-  high_hdi_prop + z * sqrt((high_hdi_prop * (1 - high_hdi_prop)) / nrow(data))
-)
-cat("Intervalle de confiance pour la proportion de pays avec un HDI élevé :", ci_prop, "\n")
 
 ```
